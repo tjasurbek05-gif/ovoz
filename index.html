@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ovoz Sozlamalari</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { font-family: sans-serif; background-color: var(--tg-theme-bg-color, #fff); color: var(--tg-theme-text-color, #000); padding: 20px; }
+        .group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; }
+        select, input[type="range"] { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; background: var(--tg-theme-secondary-bg-color, #f0f0f0); color: var(--tg-theme-text-color, #000); }
+        .slider-val { float: right; font-weight: normal; font-size: 0.9em; }
+        button { width: 100%; padding: 15px; background-color: var(--tg-theme-button-color, #3390ec); color: var(--tg-theme-button-text-color, #fff); border: none; border-radius: 10px; font-size: 16px; cursor: pointer; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="group">
+        <label>Ovoz (Voice)</label>
+        <select id="voice">
+            <option value="uz-UZ-MadinaNeural">Madina (Ayol)</option>
+            <option value="uz-UZ-SardorNeural">Sardor (Erkak)</option>
+        </select>
+    </div>
+
+    <div class="group">
+        <label>Kayfiyat (Tone) <span style="font-size:0.8em; color:gray">(Experimental)</span></label>
+        <select id="emotion">
+            <option value="neutral">Oddiy (Neutral)</option>
+            <option value="happy">Xursand (Happy)</option>
+            <option value="angry">Jahldor (Angry)</option>
+            <option value="sad">Xafa (Sad)</option>
+        </select>
+    </div>
+
+    <div class="group">
+        <label>Tezlik (Speed): <span id="rate-val" class="slider-val">0%</span></label>
+        <input type="range" id="rate" min="-50" max="50" value="0" oninput="updateLabel('rate', this.value)">
+    </div>
+
+    <div class="group">
+        <label>Balandlik (Pitch): <span id="pitch-val" class="slider-val">0Hz</span></label>
+        <input type="range" id="pitch" min="-50" max="50" value="0" oninput="updateLabel('pitch', this.value)">
+    </div>
+
+    <button onclick="saveSettings()">Saqlash (Save)</button>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand(); // Make it full height
+
+        function updateLabel(id, val) {
+            document.getElementById(id + '-val').innerText = val + (id === 'rate' ? '%' : 'Hz');
+        }
+
+        function saveSettings() {
+            let voice = document.getElementById("voice").value;
+            let emotion = document.getElementById("emotion").value;
+            let rate = document.getElementById("rate").value;
+            let pitch = document.getElementById("pitch").value;
+
+            // Logic to adjust pitch/rate based on emotion if user didn't touch sliders
+            // This is a "fake" emotion engine since generic TTS doesn't support emotions directly
+            if (emotion === 'angry') {
+                if(rate == 0) rate = 20;
+                if(pitch == 0) pitch = 10;
+            } else if (emotion === 'sad') {
+                if(rate == 0) rate = -15;
+                if(pitch == 0) pitch = -10;
+            }
+
+            let data = {
+                voice: voice,
+                rate: (rate >= 0 ? "+" : "") + rate + "%",
+                pitch: (pitch >= 0 ? "+" : "") + pitch + "Hz"
+            };
+
+            // Send data back to Bot and close Mini App
+            tg.sendData(JSON.stringify(data));
+        }
+    </script>
+</body>
+</html>python bot.py
