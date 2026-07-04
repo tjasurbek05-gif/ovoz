@@ -35,14 +35,11 @@
     </div>
 
     <div class="group">
-        <label>Tezlik (Speed): <span id="rate-val" class="slider-val">0%</span></label>
-        <input type="range" id="rate" min="-50" max="50" value="0" oninput="updateLabel('rate', this.value)">
-    </div>
-
-    <div class="group">
         <label>Balandlik (Pitch): <span id="pitch-val" class="slider-val">0Hz</span></label>
         <input type="range" id="pitch" min="-50" max="50" value="0" oninput="updateLabel('pitch', this.value)">
     </div>
+
+    <p style="font-size:0.85em; color:gray">⚡ Gapirish tezligini o'zgartirish uchun botdagi "⚡ Tezlikni sozlash" tugmasi yoki /tezlik buyrug'idan foydalaning.</p>
 
     <button onclick="saveSettings()">Saqlash (Save)</button>
 
@@ -51,32 +48,29 @@
         tg.expand(); // Make it full height
 
         function updateLabel(id, val) {
-            document.getElementById(id + '-val').innerText = val + (id === 'rate' ? '%' : 'Hz');
+            document.getElementById(id + '-val').innerText = val + 'Hz';
         }
 
         function saveSettings() {
             let voice = document.getElementById("voice").value;
             let emotion = document.getElementById("emotion").value;
-            let rate = document.getElementById("rate").value;
             let pitch = document.getElementById("pitch").value;
 
-            // Logic to adjust pitch/rate based on emotion if user didn't touch sliders
+            // Logic to adjust pitch based on emotion if user didn't touch the slider
             // This is a "fake" emotion engine since generic TTS doesn't support emotions directly
             if (emotion === 'angry') {
-                if(rate == 0) rate = 20;
                 if(pitch == 0) pitch = 10;
             } else if (emotion === 'sad') {
-                if(rate == 0) rate = -15;
                 if(pitch == 0) pitch = -10;
             }
 
             let data = {
                 voice: voice,
-                rate: (rate >= 0 ? "+" : "") + rate + "%",
                 pitch: (pitch >= 0 ? "+" : "") + pitch + "Hz"
             };
 
             // Send data back to Bot and close Mini App
+            // (speed/rate is set separately in the bot chat via /tezlik)
             tg.sendData(JSON.stringify(data));
         }
     </script>
